@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A-Frame Game</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+</head>
+<body>
+    <a-scene>
+        <a-sky color="#87CEEB"></a-sky>
+        <a-plane position="0 -0.5 0" rotation="-90 0 0" width="10" height="10" color="#007BFF"></a-plane>
+        
+        <!-- Камера и контроллер -->
+        <a-entity camera wasd-controls="acceleration:100" look-controls position="0 1.6 0">
+                <a-cursor></a-cursor>
+        </a-entity>
+
+        <a-entity hand-controls="left"></a-entity>
+        <a-entity hand-controls="right"></a-entity>
+        
+        <!-- Кнопка перезапуска -->
+        <a-entity id="restart-button" position="0 2 -5" visible="false">
+            <a-box color="yellow" depth="0.2" height="0.5" width="1" position="0 0.25 0"></a-box>
+            <a-text value="Restart" color="black" lign="center" position="0 0 0"></a-text>
+        </a-entity>
+        
+        <!-- Текст для счета -->
+        <a-text id="score-text" value="Score: 0" position="-3 2 -5"></a-text>
+        <a-text id="timer-text" value="Time: 60" position="2 2 -5"></a-text>
+        <a-text id="game-over" value="" position="0 2 -4" visible="false"></a-text>
+
+        <!-- Объекты для сбора -->
+        <a-sphere class="collectible" position="1 0.5 -3" radius="0.2" color="#FF0000"></a-sphere>
+        <a-sphere class="collectible" position="-2 0.5 -4" radius="0.2" color="#00FF00"></a-sphere>
+        <a-sphere class="collectible" position="0 0.5 -6" radius="0.2" color="#0000FF"></a-sphere>
+        <a-sphere class="collectible" position="2 0.5 -2" radius="0.2" color="#FFFF00"></a-sphere>
+
+    </a-scene>
+
+    <script>
+
+        AFRAME.registerComponent('collectible', {
+    init: function () {
+      this.el.addEventListener('collide', this.onThumbstickMoved.bind(this));
+    },
+    onThumbstickMoved: function (evt) {
+      const direction = evt.detail.axis;
+      const speed = 0.1; // Скорость передвижения
+      const position = this.el.object3D.position;
+
+      // Обновление позиции камеры на основе ввода с левого стика
+      position.x += direction[0] * speed;
+      position.z += direction[1] * speed;
+    }
+  });
+
+
+        let timer = 60;
+        const timerText = document.querySelector('#timer-text');
+        const gameOverText = document.querySelector('#game-over');
+
+        setInterval(() => {
+            if (timer > 0) {
+                timer--;
+                timerText.setAttribute('value', `Time: ${timer}`);
+            }
+            if (timer === 0) {
+                gameOverText.setAttribute('value', `Game Over! Time's Up!`);
+                gameOverText.setAttribute('visible', 'true');
+                document.querySelector('#restart-button').setAttribute('visible', 'true'); // Показываем кнопку перезапуска
+                clearInterval(this);
+            }
+        }, 1000);
+
+        // Перезапуск игры
+        document.querySelector('#restart-button').addEventListener('click', () => {
+            location.reload(); // Перезагружаем страницу для перезапуска игры
+        });
+    </script>
+</body>
+</html>
